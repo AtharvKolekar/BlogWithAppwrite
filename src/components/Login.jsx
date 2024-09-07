@@ -74,6 +74,7 @@ function Login() {
                     />
 
                     <Button
+                        onSubmit={login}
                         type='submit'
                         className='w-full'
                     >Sign in</Button>
