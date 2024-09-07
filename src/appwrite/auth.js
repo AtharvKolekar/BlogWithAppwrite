@@ -19,7 +19,6 @@ export class AuthServices {
                 const userAccount = await this.account.create(ID.unique(), email, password, name);
                 console.log("after account created : ", userAccount);
             if (userAccount) {
-                //const newSession = await this.account.createSession(userAccount.$id, userAccount.phone);
                 return this.login({email, password});
             } else {
                return  userAccount;
@@ -32,9 +31,44 @@ export class AuthServices {
     async login({email, password}) {
         try {
             console.log(email, password);
-            return await this.account.createEmailPasswordSession(email, password);
+            const userLoggedIn = await this.account.createEmailPasswordSession(email, password);
+            if(userLoggedIn){
+                this.verifyUser();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const userId = urlParams.get('userId');
+                const secret = urlParams.get('secret');
+                if (userId && secret) {
+                    this.completeEmailVerification(userId, secret);
+                }
+            }
+
         } catch (error) {
             throw error;
+        }
+    }
+
+    async verifyUser() {
+        try {
+            const user = await this.account.get();
+    
+            if (!user.emailVerification) {
+                await this.account.createVerification('https://localhost:8000/verification'); 
+                console.log('Verification email sent.');
+            } else {
+                console.log('User is already verified.');
+            }
+        } catch (error) {
+            console.error('Error verifying user:', error);
+        }
+    }
+
+    async completeEmailVerification(userId, secret) {
+        try {
+            await this.account.updateVerification(userId, secret);
+            console.log('User email verified successfully.');
+        } catch (error) {
+            console.error('Error completing email verification:', error);
         }
     }
 
