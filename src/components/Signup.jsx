@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import service from '../appwrite/auth'
+import authServices from '../appwrite/auth'
 import {Link ,useNavigate} from 'react-router-dom'
 import {login} from '../store/authSlice'
 import {Button, Input, Logo} from './index.js'
@@ -16,10 +16,10 @@ function Signup() {
         setError("")
         try {
                 console.log("data from input : ", data);
-                const userData = await service.createAccount(data);
+                const userData = await authServices.createAccount(data);
                 console.log("data after account creation : ", userData);
                 if (userData) {
-                    const userData = await service.getCurrentUser()
+                    const userData = await authServices.getCurrentUser()
                     console.log("data of current session : ",userData);
                     if(userData) dispatch(login(userData));
                     navigate("/")
