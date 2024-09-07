@@ -33,14 +33,14 @@ export class AuthServices {
             console.log(email, password);
             const userLoggedIn = await this.account.createEmailPasswordSession(email, password);
             if(userLoggedIn){
-                this.verifyUser();
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const userId = urlParams.get('userId');
-                const secret = urlParams.get('secret');
-                if (userId && secret) {
-                    this.completeEmailVerification(userId, secret);
-                }
+                this.verifyUser().then(async (res)=>{
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const userId = urlParams.get('userId');
+                    const secret = urlParams.get('secret');
+                    if (userId && secret) {
+                        await this.completeEmailVerification(userId, secret);
+                    }
+                })
             }
 
         } catch (error) {
@@ -53,8 +53,7 @@ export class AuthServices {
             const user = await this.account.get();
     
             if (!user.emailVerification) {
-                await this.account.createVerification('https://localhost:8000/verification'); 
-                console.log('Verification email sent.');
+                return await this.account.createVerification('https://localhost:8000/verification'); 
             } else {
                 console.log('User is already verified.');
             }
